@@ -9,11 +9,19 @@ String xDir;
 String yDir;
 String outputString;
 
+String inX;
+String inY;
+
+int getPolarRadius(int, int);
+double getPolarAngle(int, int);
+
+
 void setup() {
   // put your setup code here, to run once:
   pinMode(X, INPUT);
   pinMode(Y, INPUT);
   Serial.begin(9600);
+  Serial.setTimeout(10000);
 }
 
 void loop() {
@@ -21,39 +29,56 @@ void loop() {
   xVal = analogRead(X);
   yVal = analogRead(Y);
 
-  
   yVal = 1023 - yVal;
   yVal -= 512;
   xVal -= 512;
-  Serial.print("X value: " + String(xVal)+"\n");
-  Serial.print("Y value: " + String(yVal)+"\n");
-
-
 
 
   // Check if joystick is at origin
   if (abs(xVal) <= 25 && abs(yVal) <= 25) {
     outputString = "Origin";
-    Serial.print(outputString+"\n");
   }
   else {
     xDir =  (xVal < -25) ? "left" : "right"; //determine the sign of x and y componenents
     yDir = (yVal < -25) ? "down" : "up";
-    
-      outputString = (abs(xVal) > abs(yVal)) ? xDir : yDir;
-      Serial.print(outputString+"\n");
+    outputString = (abs(xVal) > abs(yVal)) ? xDir : yDir;
     }
-  delay(1000);
-}
-/*
+  // Serial.println(outputString);
+  //delay(5000);
+  Serial.println("Enter x coordinate: ");
+  inX = Serial.readStringUntil('\n');
+  Serial.println("Enter y coordinate: ");
+  inY = Serial.readStringUntil('\n');
+  Serial.println("inX: " + inX);
+  Serial.println("inY: " + inY);
+  Serial.print(inX.toInt());
 
+  xVal = inX.toInt();
+  yVal = inY.toInt();
   //Output string now contains the correct direction
   //Serial.print(outputString);
 
-  int r = sqrt(xVal*xVal + yVal*yVal);
+  int r = getPolarRadius(xVal, yVal);
+  double theta = getPolarAngle(xVal, yVal);
+  Serial.println("R: "+String(r));
+  Serial.println("Theta: " + String(theta));
 
-  int theta = atan2(yVal, xVal);
-  if (yVal < 0){
-    theta = 360 - theta;
+
+}
+
+
+
+int getPolarRadius(int x, int y) {
+  return sqrt(x*x + y*y);
+}
+
+
+
+double getPolarAngle(int x, int y) {
+  double theta = atan2(y, x);
+  theta = 180/3.14*theta;
+  if (theta < 0){
+    theta = 360 + theta;
   }
-}*/
+  return theta;
+}
